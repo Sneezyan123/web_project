@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LogoutButton } from "../_components/logout-button";
 import { getCurrentUser } from "@/lib/current-user";
 
 const menuItems = [
@@ -10,66 +9,82 @@ const menuItems = [
 ];
 
 export default async function MenuPage() {
-  const currentUser = await getCurrentUser();
-  const isAuthenticated = Boolean(currentUser);
-  const profileLabel = currentUser?.displayName ?? "Увійти";
+  const user = await getCurrentUser();
+  const isAuthenticated = Boolean(user);
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-[393px] bg-white px-6 pb-8 pt-6">
-      <div className="min-h-[calc(100vh-48px)] bg-white px-4 pb-10 pt-3">
-        <div className="mb-20 flex justify-end">
-          <Link href="/" aria-label="Close menu">
-            <img src="/figma-assets/menu-close.svg" alt="" className="h-6 w-6" />
+    <div className="bg-white min-h-screen font-sans text-gray-900 max-w-md mx-auto relative shadow-xl px-6 py-6 flex flex-col justify-between">
+      <div>
+        {/* Close button */}
+        <div className="flex justify-end pr-2 pt-2">
+          <Link href="/" className="text-gray-900 hover:opacity-70 transition-opacity">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </Link>
         </div>
 
-        <div className="space-y-8">
+        {/* Auth / Profile Block */}
+        <div className="mt-8 flex flex-col gap-4">
           {isAuthenticated ? (
-            <Link
-              href="/account"
-              className="flex h-16 items-center justify-between rounded-[10px] border-4 border-[#bbdbf8] bg-[#bbdbf8] px-4"
+            <Link 
+              href="/account" 
+              className="w-full bg-blue-100 hover:bg-blue-200 text-blue-900 font-bold h-14 rounded-[12px] flex items-center justify-between px-4 shadow-sm transition-colors relative"
             >
               <div className="flex items-center gap-3">
-                <img
-                  src="/figma-assets/menu-avatar.png"
-                  alt="Avatar"
-                  className="h-[52px] w-[52px] rounded-full border-4 border-[#bbdbf8]"
-                />
-                <p className="text-[18px] font-bold text-[#0f3a61]">{profileLabel}</p>
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-blue-50 -ml-1">
+                  <img src={user?.avatarUrl || "/assets/channel_I298_947;191:1886.png"} alt="Avatar" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-[16px] truncate max-w-[200px]">{user?.displayName}</span>
               </div>
-              <img src="/figma-assets/menu-chevron.svg" alt="" className="h-6 w-6" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </Link>
           ) : (
-            <Link
-              href="/auth/login"
-              className="flex h-16 items-center justify-between rounded-[10px] border-4 border-[#207cd3] bg-[#207cd3] px-4"
+            <Link 
+              href="/auth/login" 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 rounded-[12px] flex items-center justify-between px-6 shadow-sm transition-colors"
             >
-              <p className="text-[16px] font-semibold text-white">Вхід в акаунт</p>
-              <img src="/figma-assets/menu-chevron.svg" alt="" className="h-6 w-6 brightness-[6]" />
+              <span className="text-[16px]">Вхід в акаунт</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </Link>
           )}
 
-          <div className="space-y-3">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center justify-between rounded-[10px] border-4 border-[#d8dde3] bg-[#d8dde3] px-6 py-3"
+          {/* Navigation Links */}
+          <div className="flex flex-col gap-2 mt-2">
+            {menuItems.map((item, i) => (
+              <Link 
+                key={i} 
+                href={item.href} 
+                className="w-full bg-gray-50 hover:bg-gray-100 text-blue-900 font-bold h-14 rounded-[12px] flex items-center justify-between px-6 shadow-sm transition-colors"
               >
-                <span className="text-[16px] font-semibold text-[#0f3a61]">{item.label}</span>
-                <img src="/figma-assets/menu-chevron.svg" alt="" className="h-6 w-6" />
+                <span className="text-[16px]">{item.label}</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-900/60">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
               </Link>
             ))}
           </div>
         </div>
-
-        {isAuthenticated ? (
-          <div className="mt-52 flex items-center justify-between px-6">
-            <LogoutButton className="text-base font-semibold text-[#0f3a61]" />
-            <img src="/figma-assets/menu-logout.svg" alt="" className="h-6 w-6" />
-          </div>
-        ) : null}
       </div>
+
+      {/* Logout Block */}
+      {isAuthenticated && (
+        <form action="/api/auth/logout" method="POST" className="mt-20 px-2 py-4 flex items-center justify-between">
+          <button type="submit" className="flex items-center justify-between w-full text-blue-900 font-bold hover:opacity-80 transition-opacity">
+            <span className="text-[16px]">Вийти</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </form>
+      )}
     </div>
   );
 }

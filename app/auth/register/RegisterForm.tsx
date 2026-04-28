@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export function RegisterForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-
     setIsSubmitting(true);
 
     try {
@@ -35,30 +35,33 @@ export function RegisterForm() {
         return;
       }
 
-      router.push("/auth/login");
+      router.push("/auth/register/topics");
     } catch {
-      setError("Не вдалося завершити реєстрацію");
+      setError("Не вдалося завершити реєстрацію.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
-      <div>
-        <label className="mb-1 block text-[16px] text-[#1b2630]">Нікнейм</label>
+    <form className="flex flex-col gap-4 mt-4" onSubmit={handleSubmit}>
+      {/* Nickname Input */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[14px] text-gray-700 font-medium pl-1">Нікнейм</label>
         <input
-          className="h-12 w-full rounded-lg border border-[#9fc9ef] bg-transparent px-3 outline-none placeholder:text-[#9da8b2]"
+          className="h-12 w-full rounded-[12px] border border-blue-200 bg-white px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all placeholder-gray-400"
           placeholder="Придумайте нікнейм."
           value={nickname}
           onChange={(event) => setNickname(event.target.value)}
           required
         />
       </div>
-      <div>
-        <label className="mb-1 block text-[16px] text-[#1b2630]">Email</label>
+
+      {/* Email Input */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[14px] text-gray-700 font-medium pl-1">Email</label>
         <input
-          className="h-12 w-full rounded-lg border border-[#9fc9ef] bg-transparent px-3 outline-none placeholder:text-[#9da8b2]"
+          className="h-12 w-full rounded-[12px] border border-blue-200 bg-white px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all placeholder-gray-400"
           placeholder="Ваша електронна пошта."
           type="email"
           value={email}
@@ -66,10 +69,12 @@ export function RegisterForm() {
           required
         />
       </div>
-      <div>
-        <label className="mb-1 block text-[16px] text-[#1b2630]">Повторіть ваш пароль</label>
+
+      {/* Password Input */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[14px] text-gray-700 font-medium pl-1">Повторіть ваш пароль</label>
         <input
-          className="h-12 w-full rounded-lg border border-[#9fc9ef] bg-transparent px-3 outline-none placeholder:text-[#9da8b2]"
+          className="h-12 w-full rounded-[12px] border border-blue-200 bg-white px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all placeholder-gray-400"
           placeholder="Ваш пароль."
           type="password"
           value={password}
@@ -77,19 +82,35 @@ export function RegisterForm() {
           required
         />
       </div>
-      <div className="flex items-center justify-center gap-2">
-        <span className="h-2 w-2 rounded-full bg-[#4fa1ed]" />
-        <span className="h-2 w-2 rounded-full bg-[#9fc9ef]" />
-        <span className="h-2 w-2 rounded-full bg-[#9fc9ef]" />
+
+      {/* Dots Indicator */}
+      <div className="flex items-center justify-center gap-2 mt-2">
+        <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm"></span>
+        <span className="w-2.5 h-2.5 rounded-full bg-blue-200"></span>
+        <span className="w-2.5 h-2.5 rounded-full bg-blue-200"></span>
       </div>
-      {error ? <p className="text-sm text-[#e42e21]">{error}</p> : null}
+
+      {error && (
+        <p className="text-xs text-red-500 font-medium bg-red-50 p-3 rounded-[12px] border border-red-100">
+          {error}
+        </p>
+      )}
+
+      {/* Action Buttons */}
       <button
         type="submit"
-        className="h-10 w-full rounded-lg bg-[#207cd3] text-base font-semibold text-white disabled:opacity-60"
+        className="w-full h-12 rounded-[12px] bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all mt-4 flex items-center justify-center shadow-sm"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Створюємо..." : "Далі"}
+        {isSubmitting ? "Вперед..." : "Далі"}
       </button>
+
+      <Link 
+        href="/auth/login" 
+        className="text-center text-sm text-blue-600 font-bold hover:underline mt-1"
+      >
+        Вже є акаунт? Увійти
+      </Link>
     </form>
   );
 }

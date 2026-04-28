@@ -1,131 +1,181 @@
 import Link from "next/link";
-import { getChannels } from "@/lib/channels";
-import { topicToSlug } from "@/lib/channels";
+import Image from "next/image";
+import { getChannels, getTopics } from "@/lib/channels";
 import { getCurrentUser } from "@/lib/current-user";
-import { ChannelCard, Footer, Header, MobileShell, topicPills } from "./_components/u2u";
+import { getBookmarkedChannels } from "@/lib/bookmarks";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ChannelCard from "@/components/ChannelCard";
 
-const topicIcons: Record<string, string> = {
-  "Англійська мова": "🇺🇸",
-  "Ігрові світи та гори": "🎮",
-  "Книги": "📚",
-  "Трукрайм": "🕵️",
-  "Аніме": "🌸",
-  "Новини": "📰",
-  "Навчання": "📝",
-  "Летсплеї": "🕹️",
-};
+type SearchParams = Promise<{
+  search?: string;
+  sort?: "recommended" | "new" | "top";
+  topic?: string;
+}>;
 
-export default async function Home() {
-  const currentUser = await getCurrentUser();
-  const isAuthenticated = Boolean(currentUser);
-  const channels = await getChannels({ sort: "recommended", limit: 8 });
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const user = await getCurrentUser();
+  
+  const channels = await getChannels({
+    sort: params.sort,
+    topic: params.topic,
+    search: params.search,
+  });
+  
+  const topics = await getTopics();
+  const savedChannels = user ? await getBookmarkedChannels(user.id) : [];
+  
+  const activeSort = params.sort ?? "recommended";
+  const activeTopic = params.topic ?? "";
+
+  const topicsList = [
+    { name: "Англійська мова", emoji: "🇺🇸" },
+    { name: "Ігрові світи та лор", emoji: "🎮" },
+    { name: "Книги", emoji: "📚" },
+    { name: "Трукрайм", emoji: "👮" },
+    { name: "Аніме", emoji: "🌸" },
+    { name: "Шортси", emoji: "🎬" },
+    { name: "Новини", emoji: "📰" },
+    { name: "Навчання", emoji: "📝" },
+    { name: "Летсплеї", emoji: "🕹" },
+  ];
 
   return (
-    <MobileShell>
-      <Header />
+    <div className="bg-white min-h-screen font-sans text-gray-900 max-w-md mx-auto relative shadow-xl overflow-x-hidden pb-10">
+      <Header user={user} />
 
-      <main className="relative space-y-4 px-4 pb-8 pt-[14px]">
-        {isAuthenticated ? (
-          <section className="rounded-[10px] bg-[#d4e7fa] px-4 py-[14px]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-[22px] font-bold text-[#0f3a61]">Збережені канали</h2>
-              <div className="flex items-center gap-2">
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-base font-bold text-[#0f3a61]">
-                  3
-                </span>
-                <img src="/figma-assets/chevron-large.svg" alt="" className="h-6 w-6" />
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        <section className="rounded-[10px] bg-white px-2 pb-2 pt-6">
-          <div className="mb-4 flex items-end justify-between">
-            <h2 className="text-[22px] font-bold text-[#0f3a61]">Тематичні добірки</h2>
-            <Link href="/collections" className="text-xs text-[#4d5a66]">переглянути всі</Link>
+      <main className="px-4 pt-4 flex flex-col gap-6">
+        {/* Saved Banner ("Збережені канали") */}
+        <Link href="/account?tab=bookmarks" className="bg-blue-50 hover:bg-blue-100 transition-colors rounded-[12px] h-12 px-4 flex items-center justify-between mt-2">
+          <span className="font-bold text-gray-800 text-[15px]">Збережені канали</span>
+          <div className="flex items-center gap-3">
+            <span className="bg-white text-gray-800 font-bold text-xs h-6 px-3 rounded-full flex items-center justify-center shadow-sm">
+              {savedChannels.length || 3}
+            </span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
           </div>
-          <div className="flex flex-wrap justify-center gap-3 pb-2">
-            {topicPills.map((topic) => (
-              <Link
-                key={topic}
-                href={`/collections/${topicToSlug(topic)}`}
-                className="flex h-10 items-center gap-2 rounded-[50px] bg-[#ebeff2] px-4 text-base font-semibold text-[#0f3a61]"
-              >
-                {topic === "Шортси" ? (
-                  <img src="/figma-assets/shorts.svg" alt="" className="h-[15px] w-3" />
-                ) : (
-                  <span className="text-sm">{topicIcons[topic] ?? "•"}</span>
-                )}
-                <span>{topic}</span>
-              </Link>
-            ))}
+        </Link>
+
+        {/* Thematic Selections Block */}
+        <section className="flex flex-col gap-4 mt-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[18px] font-bold text-gray-900">Тематичні добірки</h2>
+            <Link href="/filters" className="text-[11px] text-gray-400 hover:text-gray-600 transition-colors">
+              переглянути всі
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {topicsList.map((topic, i) => {
+              const isActive = topic.name === activeTopic;
+              return (
+                <Link 
+                  href={`/?topic=${encodeURIComponent(topic.name)}&sort=${activeSort}`} 
+                  key={i}
+                  className={`flex items-center gap-2 py-1.5 px-4 rounded-full border text-[13px] font-medium transition-colors ${isActive ? "bg-blue-600 text-white border-blue-600" : "bg-gray-50/50 border-gray-100 text-gray-700 hover:bg-gray-100"}`}
+                >
+
+                  <span>{topic.emoji}</span>
+                  <span>{topic.name}</span>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
-        <section className="space-y-4 rounded-[10px] bg-white px-0 pb-2 pt-6">
+        {/* YouTube Channels Block */}
+        <section className="flex flex-col gap-4 mt-2">
           <div className="flex items-center justify-between">
-            <h2 className="pl-2 text-[22px] font-bold text-[#0f3a61]">Ютуб-канали</h2>
-            <Link href="/channels" className="pr-2 text-xs text-[#4d5a66]">переглянути всі</Link>
+            <h2 className="text-[18px] font-bold text-gray-900">Ютуб-канали</h2>
+            <Link href="/channels" className="text-[11px] text-gray-400 hover:text-gray-600 transition-colors">
+              переглянути всі
+            </Link>
           </div>
 
-          <div className="flex gap-[10px] pl-2">
-            <Link href="/channels" className="grid h-[35px] rounded-full bg-[#207cd3] px-[18px] text-sm font-semibold text-white place-items-center">
+          {/* Sort Toggles */}
+          <div className="flex items-center gap-2">
+            <Link 
+              href={`/?sort=recommended${activeTopic ? `&topic=${encodeURIComponent(activeTopic)}` : ""}`}
+              className={`px-6 py-1.5 rounded-full text-[13px] font-semibold transition-all border ${activeSort === "recommended" ? "bg-blue-600 text-white border-blue-600" : "bg-white border-blue-500 text-blue-500"}`}
+            >
               Рекомендації
             </Link>
-            <Link href="/channels" className="grid h-[35px] rounded-full border-2 border-[#207cd3] bg-white px-[18px] text-sm font-semibold text-[#207cd3] place-items-center">
+            <Link 
+              href={`/?sort=new${activeTopic ? `&topic=${encodeURIComponent(activeTopic)}` : ""}`}
+              className={`px-6 py-1.5 rounded-full text-[13px] font-semibold transition-all border ${activeSort === "new" ? "bg-blue-600 text-white border-blue-600" : "bg-white border-blue-500 text-blue-500"}`}
+            >
               Нове
             </Link>
-            <Link href="/channels" className="grid h-[35px] rounded-full border-2 border-[#207cd3] bg-white px-[18px] text-sm font-semibold text-[#207cd3] place-items-center">
+            <Link 
+              href={`/?sort=top${activeTopic ? `&topic=${encodeURIComponent(activeTopic)}` : ""}`}
+              className={`px-6 py-1.5 rounded-full text-[13px] font-semibold transition-all border ${activeSort === "top" ? "bg-blue-600 text-white border-blue-600" : "bg-white border-blue-500 text-blue-500"}`}
+            >
               Топ
             </Link>
           </div>
 
-          <div className="space-y-4">
-            {channels.map((channel) => (
-              <ChannelCard key={channel.slug} channel={channel} />
-            ))}
+          {/* Channels List */}
+          <div className="flex flex-col gap-5 mt-2">
+            {channels.length === 0 ? (
+              <p className="text-gray-400 text-center py-6">Нічого не знайдено.</p>
+            ) : (
+              channels.map((channel, i) => (
+                <ChannelCard 
+                  key={i} 
+                  channel={channel} 
+                  isBookmarked={savedChannels.some(sc => sc.slug === channel.slug)} 
+                />
+              ))
+            )}
           </div>
         </section>
 
-        <section className="space-y-4 rounded-[10px] bg-white px-2 pb-2 pt-6">
-          <h2 className="text-[22px] font-bold text-[#0f3a61]">Додати ютуб-канал</h2>
-          {isAuthenticated ? (
+        {/* CTA */}
+        <section className="flex flex-col gap-3 mt-4">
+          <h2 className="text-[18px] font-bold text-gray-900">Додати ютуб-канал</h2>
+          {user ? (
             <>
-              <p className="text-base text-black">
-                Заповніть форму, щоб запропонувати канал.
-                <br />
-                <strong>Увага: розглядаються лише україномовні канали, російськомовні не додаються!</strong>
-                <br />
-                Перевірте, чи каналу ще немає на сайті. Статус запиту можна відстежувати в акаунті.
-                Додавання безкоштовне. Дякуємо за підтримку українського контенту!
+              <p className="text-[14px] text-gray-700 leading-relaxed font-normal">
+                Заповніть форму, щоб запропонувати канал.<br/>
+                <strong className="font-bold">Увага: розглядаються лише україномовні канали, російськомовні не додаються!</strong><br/>
+                Перевірте, чи каналу ще немає на сайті. Статус запиту можна відстежувати в акаунті. Додавання безкоштовне. Дякуємо за підтримку українського контенту!
               </p>
-              <Link href="/add-channel" className="grid h-10 w-full place-items-center rounded-lg bg-[#207cd3] text-base font-semibold text-white">
+              <Link 
+                href="/add-channel" 
+                className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-center rounded-[12px] transition-all mt-1 shadow-sm"
+              >
                 Заповнити форму
               </Link>
             </>
           ) : (
             <>
-              <p className="text-base text-black">
-                Хочете поділитися цікавим україномовним каналом? Щоб запропонувати канал, увійдіть у свій акаунт.
+              <p className="text-[14px] text-gray-700 leading-relaxed font-normal">
+                Хочете поділитися цікавим україномовним каналом? Додайте його на U2U, щоб більше українців могли дізнатися про нових авторів!<br/>
+                <strong className="font-bold">Увага: розглядаються лише україномовні канали, російськомовні не додаються!</strong><br/>
+                Щоб запропонувати канал, <span className="font-bold">увійдіть у свій акаунт</span> і заповніть просту форму.
               </p>
-              <Link href="/auth/login" className="grid h-10 w-full place-items-center rounded-lg bg-[#207cd3] text-base font-semibold text-white">
-                Увійти
+              <Link 
+                href="/auth/login" 
+                className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-center rounded-[12px] transition-all mt-1 shadow-sm"
+              >
+                Увійти або зареєструватись
               </Link>
             </>
           )}
-        </section>
 
-        <div className="pointer-events-none absolute bottom-[168px] right-[17px] z-10 flex w-[216px] flex-col items-end gap-2">
-          <div className="rounded-[30px] bg-[#fddba5] px-3 py-2 text-center text-sm leading-[18px] text-black">
-            Маєш проблеми з пошуком?
-          </div>
-          <div className="grid h-[70px] w-[70px] place-items-center rounded-full bg-[#fbb03b]">
-            <img src="/figma-assets/help-star.svg" alt="Помічник" className="h-[37px] w-[37px]" />
-          </div>
-        </div>
+        </section>
       </main>
 
+      {/* Floating Assistant Bubble */}
+      <Link href="/assistant" className="fixed bottom-6 right-6 w-14 h-14 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-transform active:scale-95 z-50">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+      </Link>
+      
       <Footer />
-    </MobileShell>
+    </div>
   );
 }

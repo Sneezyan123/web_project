@@ -1,26 +1,28 @@
-import { MobileShell } from "../_components/u2u";
-
 import Link from "next/link";
+import Image from "next/image";
+import ChatContainer from "./ChatContainer";
 
 export default function AssistantPage() {
   return (
-    <MobileShell>
-      <main className="space-y-4 px-2 pb-8 pt-6">
-        <h1 className="px-2 text-[22px] font-bold text-[#0f3a61]">AI помічник</h1>
-        <div className="max-w-[308px] rounded-[30px] bg-[#fddba5] p-3 text-sm text-black">
-          Привіт! Підкажу, які канали або добірки найкраще підійдуть під твої інтереси.
+    <div className="bg-white min-h-screen font-sans text-gray-900 max-w-md mx-auto relative shadow-xl px-0 pt-10 flex flex-col justify-between overflow-hidden">
+      <div>
+        <div className="flex items-center justify-between px-6 mb-4">
+          <Link href="/">
+            <Image src="/assets/layer_2.svg" alt="UU Logo" width={40} height={40} />
+          </Link>
+          <Link href="/" aria-label="Закрити" className="p-2 -mr-2 rounded-full hover:bg-gray-100 transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </Link>
         </div>
-        <div className="flex flex-wrap gap-2 px-2">
-          <Link href="/collections/ihry" className="rounded-full bg-[#ebeff2] px-4 py-2 text-sm font-semibold text-[#0f3a61]">Летсплеї</Link>
-          <Link href="/collections/ihry" className="rounded-full bg-[#ebeff2] px-4 py-2 text-sm font-semibold text-[#0f3a61]">Шортси</Link>
-          <Link href="/collections/ihry" className="rounded-full bg-[#ebeff2] px-4 py-2 text-sm font-semibold text-[#0f3a61]">Книги</Link>
-        </div>
-        <p className="px-2 text-xs text-[#4d5a66]">*Потрібна авторизація через YouTube для деяких функцій</p>
-        <div className="fixed bottom-4 left-1/2 flex w-[344px] -translate-x-1/2 gap-2 rounded-xl bg-white p-2 shadow">
-          <input className="h-10 flex-1 rounded-lg border border-[#d4e7fa] px-3 text-sm outline-none" placeholder="Ваше повідомлення..." />
-          <Link href="/channels" className="grid h-10 w-20 place-items-center rounded-lg bg-[#207cd3] text-white">Надіслати</Link>
-        </div>
-      </main>
-    </MobileShell>
+
+        <h1 className="text-2xl font-bold text-gray-900 px-6">AI помічник</h1>
+        <p className="text-xs text-gray-500 px-6 mt-1">*Працює на базі Groq LLaMA 3</p>
+      </div>
+
+      <ChatContainer />
+    </div>
   );
 }

@@ -1,123 +1,112 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { createChannel } from "@/lib/channels";
-import { getCurrentUser } from "@/lib/current-user";
-import { MobileShell } from "../_components/u2u";
-import { RichTextInput } from "./rich-text-input";
 
-export default async function AddChannelPage() {
-  const currentUser = await getCurrentUser();
-  if (!currentUser) {
-    redirect("/auth/login");
-  }
+export default function AddChannelPage() {
+  const [submitted, setSubmitted] = useState(false);
+  const [url, setUrl] = useState("");
+  const [about, setAbout] = useState("");
+  const [topic, setTopic] = useState("");
 
-  async function submitChannel(formData: FormData) {
-    "use server";
-    const user = await getCurrentUser();
-    if (!user) {
-      redirect("/auth/login");
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url || !about || !topic) return;
+    setSubmitted(true);
+  };
 
-    const explicitName = String(formData.get("name") ?? "").trim();
-    const youtubeUrl = String(formData.get("youtubeUrl") ?? "").trim();
-    const about = String(formData.get("about") ?? "").trim();
-    const topic = String(formData.get("topic") ?? "").trim();
-    const language = String(formData.get("language") ?? "Українська").trim();
-    const avgDuration = Number(formData.get("avgDuration") ?? 15);
+  if (submitted) {
+    return (
+      <div className="bg-white min-h-screen font-sans text-gray-900 max-w-md mx-auto relative shadow-xl px-6 pt-24 flex flex-col items-start gap-5">
+        <h1 className="text-[28px] font-bold text-blue-900">Дякуємо!</h1>
+        
+        <div className="flex flex-col gap-1 text-gray-800 text-[14px] leading-relaxed">
+          <p className="font-bold">Канал успішно надіслано на розгляд.</p>
+          <p>Після перевірки модераторами він може з&apos;явитися на сайті. Ви можете відстежувати статус у своєму акаунті.</p>
+          <p>Разом популяризуємо український контент!</p>
+        </div>
 
-    if (!youtubeUrl || !about || !topic) {
-      return;
-    }
-
-    const fallbackName = youtubeUrl
-      .replace(/^https?:\/\//, "")
-      .replace(/^www\./, "")
-      .split(/[/?#]/)[0]
-      .slice(0, 60);
-    const name = explicitName || fallbackName || "Новий канал";
-
-    await createChannel({
-      name,
-      youtubeUrl,
-      about,
-      topic,
-      language,
-      avgDuration,
-      createdBy: user.id,
-    });
-
-    revalidatePath("/");
-    revalidatePath("/channels");
-    redirect("/add-channel/success");
+        <button 
+          onClick={() => setSubmitted(false)}
+          className="w-full h-12 rounded-[12px] bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center shadow-sm transition-all mt-4"
+        >
+          Зрозуміло!
+        </button>
+      </div>
+    );
   }
 
   return (
-    <MobileShell>
-      <main className="min-h-screen bg-white p-2">
-        <section className="rounded-[10px] bg-white px-4 pb-4 pt-3">
-          <div className="mb-2 flex items-center justify-between">
-            <h1 className="text-[39px]/[1] font-bold text-[#0f3a61]">Додати ютуб-канал</h1>
-            <Link href="/" aria-label="Закрити" className="text-2xl leading-none text-black">
-              ×
-            </Link>
+    <div className="bg-white min-h-screen font-sans text-gray-900 max-w-md mx-auto relative shadow-xl px-6 pt-6 flex flex-col pb-10 justify-between">
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-[24px] font-bold text-blue-900 pl-1">Додати ютуб-канал</h1>
+          <Link href="/" aria-label="Закрити" className="p-2 -mr-2 text-gray-900 hover:opacity-70 transition-opacity">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </Link>
+        </div>
+
+        <div className="flex flex-col gap-1 text-[13px] text-gray-800 font-medium pl-1 leading-relaxed">
+          <p className="font-bold">Увага: розглядаються лише україномовні канали, російськомовні не додаються!</p>
+          <p>Перевірте, чи каналу ще немає на сайті. Статус запиту можна відстежувати в акаунті.</p>
+        </div>
+
+        <form className="flex flex-col gap-5 mt-6" onSubmit={handleSubmit}>
+          <div className="flex flex-col gap-2">
+            <label className="text-[14px] text-gray-700 font-medium pl-1">URL-адреса каналу<span className="text-red-500">*</span></label>
+            <input
+              className="h-12 w-full rounded-[12px] border border-blue-200 bg-white px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all placeholder-gray-400 font-medium"
+              placeholder="Введіть посилання на канал."
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
+            />
           </div>
-          <p className="mb-4 text-[14px]/[1.35] text-[#1b2630]">
-            <strong>Увага: розглядаються лише україномовні канали, російськомовні не додаються!</strong>
-            <br />
-            Перевірте, чи каналу ще немає на сайті.
-            <br />
-            Статус запиту можна відстежувати в акаунті.
-          </p>
 
-          <form action={submitChannel} className="space-y-4">
-            <input name="name" type="hidden" value="Новий канал" />
-            <div>
-              <label className="mb-2 block text-base text-[#1b2630]">
-                URL-адреса каналу<span className="text-[#cf2a1e]">*</span>
-              </label>
-              <input
-                name="youtubeUrl"
-                type="url"
-                required
-                className="h-10 w-full rounded-[8px] border-2 border-[#bbdbf8] px-3 text-base outline-none placeholder:text-[#9da8b2]"
-                placeholder="Введіть посилання на канал."
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-base text-[#1b2630]">
-                Опис каналу (до 1000 символів)<span className="text-[#cf2a1e]">*</span>
-              </label>
-              <RichTextInput
-                name="about"
-                required
-                maxLength={1000}
-                placeholder="Введіть опис каналу."
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-base text-[#1b2630]">
-                Оберіть тематику каналу (до 3 категорій)<span className="text-[#cf2a1e]">*</span>
-              </label>
+          <div className="flex flex-col gap-2">
+            <label className="text-[14px] text-gray-700 font-medium pl-1">Опис каналу (до 1000 символів)<span className="text-red-500">*</span></label>
+            <div className="border border-blue-200 rounded-[12px] flex flex-col p-4 bg-white focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400 transition-all">
               <textarea
-                name="topic"
+                className="w-full h-36 bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 font-medium resize-none"
+                placeholder="Введіть опис каналу."
+                maxLength={1000}
+                value={about}
+                onChange={(e) => setAbout(e.target.value)}
                 required
-                className="h-[74px] w-full resize-none rounded-[8px] border-2 border-[#bbdbf8] p-3 text-base outline-none placeholder:text-[#9da8b2]"
-                placeholder="Напишіть тематику."
               />
+              <div className="flex items-center gap-4 text-blue-400 font-black text-sm mt-2 select-none border-t border-gray-100 pt-2 pl-1">
+                <span className="cursor-pointer hover:text-blue-600">B</span>
+                <span className="cursor-pointer hover:text-blue-600 italic">I</span>
+                <span className="cursor-pointer hover:text-blue-600 font-bold">H</span>
+                <span className="cursor-pointer hover:text-blue-600">&ldquo;&rdquo;</span>
+                <span className="cursor-pointer hover:text-blue-600">🔗</span>
+              </div>
             </div>
+          </div>
 
-            <input type="hidden" name="language" value="Українська" />
-            <input type="hidden" name="avgDuration" value="20" />
+          <div className="flex flex-col gap-2">
+            <label className="text-[14px] text-gray-700 font-medium pl-1">Оберіть тематику каналу (до 3 категорій)<span className="text-red-500">*</span></label>
+            <input
+              className="h-12 w-full rounded-[12px] border border-blue-200 bg-white px-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all placeholder-gray-400 font-medium"
+              placeholder="Напишіть тематику."
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              required
+            />
+          </div>
 
-            <button type="submit" className="grid h-10 w-full place-items-center rounded-[8px] bg-[#207cd3] text-base font-semibold text-white">
-              Відправити
-            </button>
-          </form>
-        </section>
-      </main>
-    </MobileShell>
+          <button
+            type="submit"
+            className="w-full h-12 rounded-[12px] bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all mt-4 flex items-center justify-center shadow-sm"
+          >
+            Відправити
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

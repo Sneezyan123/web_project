@@ -10,7 +10,9 @@ import {
   rateChannel,
 } from "@/lib/channels";
 import { getCurrentUser } from "@/lib/current-user";
-import { Footer, Header, MobileShell } from "../../_components/u2u";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ChannelCard from "@/components/ChannelCard";
 
 export default async function ChannelPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -63,206 +65,209 @@ export default async function ChannelPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <MobileShell>
-      <Header />
-      <main className="space-y-4 px-4 pb-8 pt-[13px]">
-        <p className="pl-2 text-xs text-[#4d5a66]">Головна / Добірки / Летсплеї / {channel.name}</p>
-        <section className="relative px-4 pb-3 pt-4">
-          <div className="mb-3 flex items-start justify-between">
-            <div className="flex items-start gap-3">
-              <div className="h-20 w-20 overflow-hidden rounded-full">
-                <img src={channel.avatar} alt={channel.name} className="h-full w-full object-cover" />
+    <div className="bg-white min-h-screen font-sans text-gray-900 max-w-md mx-auto relative shadow-xl overflow-x-hidden pb-10 flex flex-col">
+      <Header user={currentUser} />
+
+      <main className="px-4 pt-4 flex flex-col gap-6 flex-1">
+        {/* Breadcrumbs */}
+        <div className="text-gray-400 text-[11px] font-medium pl-1">
+          Головна / Добірки / {channel.tags} / {channel.name}
+        </div>
+
+        {/* Channel Details Section */}
+        <section className="flex flex-col gap-4 pl-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 relative rounded-full overflow-hidden shrink-0 border border-blue-100">
+                <img src={channel.avatar} alt={channel.name} className="object-cover w-full h-full" />
               </div>
-              <div className="pt-2">
-                <h1 className="text-[36px]/[1] font-bold text-[#0f3a61]">{channel.name}</h1>
-                <p className="mt-1 text-xl/[1] text-[#0f3a61]">{channel.tags}</p>
+              <div className="flex flex-col">
+                <h1 className="font-bold text-gray-900 text-[22px] leading-tight">{channel.name}</h1>
+                <span className="text-xs text-gray-400 mt-0.5">{channel.tags}</span>
               </div>
             </div>
-            <div className="mt-1 grid h-8 w-8 place-items-center rounded-full">
-              <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 3.5C6.17 3.5 5.5 4.17 5.5 5V20.5L12 16.6L18.5 20.5V5C18.5 4.17 17.83 3.5 17 3.5H7Z" stroke="#9DA8B2" strokeWidth="1.75" />
+            
+            {/* Bookmark button */}
+            <button className="w-10 h-10 border border-blue-200 rounded-full flex items-center justify-center text-blue-500 hover:bg-blue-50 transition-colors shadow-sm">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
               </svg>
-            </div>
+            </button>
           </div>
 
           <a
             href={channel.youtubeUrl}
             target="_blank"
             rel="noreferrer"
-            className="mb-3 flex h-10 items-center justify-center gap-[6px] rounded-[10px] bg-[#cf2a1e] px-4 text-base font-semibold text-white"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-12 rounded-[12px] flex items-center justify-center gap-2 shadow-sm transition-colors text-[15px] mt-1"
           >
-            <img src="/figma-assets/auth-youtube.svg" alt="" className="h-[18px] w-[25px]" />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 4-8 4z"/>
+            </svg>
             Перейти на канал
           </a>
 
-          <div className="grid grid-cols-3 items-center text-center">
-            <div className="py-[7px]">
-              <p className="text-[11px] leading-[1.5] tracking-[-0.121px] text-[#9da8b2]">Підписники</p>
-              <p className="text-[25px] font-semibold leading-none text-[#207cd3]">{channel.subs}</p>
+          {/* Stats Row */}
+          <div className="flex items-center justify-between text-center px-4 py-2 bg-gray-50 rounded-[16px]">
+            <div className="flex flex-col items-center">
+              <span className="text-gray-400 text-[11px] mb-1">Підписники</span>
+              <span className="font-bold text-gray-900 text-[20px]">{channel.subs}</span>
             </div>
-            <div className="py-[7px]">
-              <p className="text-[11px] leading-[1.5] tracking-[-0.121px] text-[#9da8b2]">Відео</p>
-              <p className="text-[25px] font-semibold leading-none text-[#207cd3]">{channel.videos}</p>
+            <div className="w-px h-8 bg-gray-200/50"></div>
+            <div className="flex flex-col items-center">
+              <span className="text-gray-400 text-[11px] mb-1">Відео</span>
+              <span className="font-bold text-gray-900 text-[20px]">{channel.videos}</span>
             </div>
-            <div className="py-[7px]">
-              <p className="text-[11px] leading-[1.5] tracking-[-0.121px] text-[#9da8b2]">Оцінка</p>
-              <p className="flex items-center justify-center gap-1 text-[25px] font-semibold leading-none text-[#207cd3]">
-                <img src="/figma-assets/star-small.svg" alt="" className="h-5 w-5" />
+            <div className="w-px h-8 bg-gray-200/50"></div>
+            <div className="flex flex-col items-center">
+              <span className="text-gray-400 text-[11px] mb-1">Оцінка</span>
+              <span className="font-bold text-gray-900 text-[20px] flex items-center gap-1">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#FBBF24" stroke="#FBBF24" strokeWidth="1" className="translate-y-[-1px]">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
                 {channel.rating}
-              </p>
+              </span>
             </div>
           </div>
 
-          <div
-            className="mt-[10px] line-clamp-[9] text-[14px]/[1.25] text-[#1b2630]"
+          {/* Description */}
+          <div 
+            className="text-[14px] text-gray-700 leading-relaxed font-normal pl-1"
             dangerouslySetInnerHTML={{ __html: aboutHtml }}
           />
-          <div className="mt-1 flex justify-center">
-            <img src="/figma-assets/chevron-large.svg" alt="" className="h-6 w-6" />
+        </section>
+
+        {/* Recommended Videos */}
+        <section className="flex flex-col gap-4 mt-2 pl-1">
+          <h2 className="text-[18px] font-bold text-gray-900">Рекомендовані відео</h2>
+          <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 snap-x">
+            <div className="relative w-64 aspect-video rounded-[16px] overflow-hidden border border-gray-100 flex-shrink-0 snap-center shadow-sm">
+              <img src="/assets/channel_I298_947;191:1886.png" alt="Video thumbnail" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
+                <span className="text-white font-bold text-[14px] leading-tight">Початок гри на виживання</span>
+                <span className="text-gray-300 text-[11px] mt-1">12:45 • 28 тис. переглядів</span>
+              </div>
+            </div>
+            <div className="relative w-64 aspect-video rounded-[16px] overflow-hidden border border-gray-100 flex-shrink-0 snap-center shadow-sm">
+              <img src="/assets/channel_I298_947;191:1886.png" alt="Video thumbnail" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4">
+                <span className="text-white font-bold text-[14px] leading-tight">Огляд української гри</span>
+                <span className="text-gray-300 text-[11px] mt-1">9:31 • 15 тис. переглядів</span>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="rounded-[10px] bg-white px-2 pb-4 pt-6">
-          <h2 className="mb-3 text-[22px] font-bold text-[#0f3a61]">Рекомендовані відео</h2>
-          <div className="flex gap-2 overflow-auto pb-1">
-            <div className="relative h-[210px] min-w-[264px] rounded-[8px] border border-[#d4e7fa] bg-[#ebeff2]">
-              <div className="absolute inset-x-0 bottom-0 rounded-b-[8px] bg-white/90 p-3">
-                <p className="text-sm font-semibold text-[#0f3a61]">Початок гри на виживання</p>
-                <p className="mt-1 text-xs text-[#4d5a66]">12:45 • 28 тис. переглядів</p>
-              </div>
-            </div>
-            <div className="relative h-[210px] min-w-[264px] rounded-[8px] border border-[#d4e7fa] bg-[#ebeff2]">
-              <div className="absolute inset-x-0 bottom-0 rounded-b-[8px] bg-white/90 p-3">
-                <p className="text-sm font-semibold text-[#0f3a61]">Огляд української гри</p>
-                <p className="mt-1 text-xs text-[#4d5a66]">9:31 • 15 тис. переглядів</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-[10px] bg-white px-2 pb-5 pt-5">
-          <h2 className="text-center text-[22px] font-bold text-[#0f3a61]">Оцініть канал!</h2>
+        {/* Rate Channel Block */}
+        <section className="flex flex-col items-center gap-3 bg-blue-50/50 rounded-[20px] p-6 border border-blue-50 mt-2">
+          <h2 className="text-[18px] font-bold text-blue-900">Оцініть канал!</h2>
           {currentUser ? (
-            <form action={submitRating} className="mt-3 flex items-center justify-center gap-3">
+            <form action={submitRating} className="flex items-center gap-2 mt-1">
               {[1, 2, 3, 4, 5].map((item) => (
-                <button key={item} type="submit" name="rating" value={item} className="grid h-9 w-9 place-items-center rounded-full bg-[#ebeff2]">
-                  <img src="/figma-assets/star-big.svg" alt={`Оцінка ${item}`} className={`h-6 w-6 ${item <= userRating ? "" : "opacity-30"}`} />
+                <button key={item} type="submit" name="rating" value={item} className="p-1 hover:scale-110 transition-transform">
+                  <svg 
+                    width="32" height="32" viewBox="0 0 24 24" 
+                    fill={item <= userRating ? "#FBBF24" : "none"} 
+                    stroke={item <= userRating ? "#FBBF24" : "#94A3B8"} 
+                    strokeWidth="2"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
                 </button>
               ))}
             </form>
           ) : (
-            <Link href="/auth/login" className="mt-3 block text-center text-sm text-[#4d5a66]">
+            <Link href="/auth/login" className="text-sm text-blue-600 font-semibold hover:underline mt-1">
               Увійдіть, щоб поставити оцінку
             </Link>
           )}
         </section>
 
-        <section className="rounded-[10px] bg-white px-2 pb-4 pt-6">
-          <div className="mb-3 flex items-center gap-3">
-            <h2 className="text-[22px] font-bold text-[#0f3a61]">Коментарі</h2>
-            <span className="grid h-7 min-w-7 place-items-center rounded-full bg-[#d4e7fa] px-2 text-sm font-semibold text-[#0f3a61]">{comments.length}</span>
+        {/* Comments Block */}
+        <section className="flex flex-col gap-4 mt-2 pl-1">
+          <div className="flex items-center gap-3">
+            <h2 className="text-[18px] font-bold text-gray-900">Коментарі</h2>
+            <span className="bg-blue-100 text-blue-800 font-bold text-xs h-6 px-3 rounded-full flex items-center justify-center shadow-sm">
+              {comments.length}
+            </span>
           </div>
+
           {currentUser ? (
-            <form action={submitComment} className="mb-4 flex items-start gap-2">
-              <img src={channel.avatar} alt="" className="mt-1 h-8 w-8 rounded-full object-cover" />
-              <div className="flex-1">
-                <textarea
-                  name="comment"
-                  required
-                  className="h-20 w-full resize-none rounded-[8px] border-2 border-[#bbdbf8] bg-white px-4 py-[6px] text-base text-[#0f3a61] outline-none"
-                  placeholder="Напишіть коментар."
-                />
-                <p className="mt-1 text-xs tracking-[-0.36px] text-[#686e74]">Коментарі приймаються тільки українською мовою.</p>
-                <div className="mt-2 flex items-center justify-center gap-2">
+            <form action={submitComment} className="flex flex-col gap-3 mt-1 bg-white border border-blue-100 rounded-[16px] p-4 shadow-sm">
+              <textarea
+                name="comment"
+                required
+                className="w-full h-24 border border-blue-50 rounded-[12px] p-3 text-[13px] outline-none placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all resize-none"
+                placeholder="Напишіть коментар..."
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-gray-400 max-w-[160px] leading-tight">Коментарі приймаються тільки українською мовою.</span>
+                <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((item) => (
-                    <label key={item} className="cursor-pointer">
+                    <label key={item} className="cursor-pointer hover:scale-105 transition-transform">
                       <input type="radio" name="commentRating" value={item} defaultChecked={item === 5} className="peer sr-only" />
-                      <img src="/figma-assets/star-big.svg" alt={`Оцінка ${item}`} className="h-6 w-6 opacity-30 peer-checked:opacity-100" />
+                      <svg 
+                        width="18" height="18" viewBox="0 0 24 24" 
+                        className="peer-checked:fill-yellow-400 peer-checked:stroke-yellow-400 fill-none stroke-gray-300 transition-colors"
+                        strokeWidth="2.5"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
                     </label>
                   ))}
                 </div>
-                <button type="submit" className="mt-2 h-10 w-full rounded-[8px] bg-[#207cd3] text-base font-medium text-white">
-                  Коментувати
-                </button>
               </div>
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-10 rounded-[12px] shadow-sm transition-colors text-[13px] mt-1">
+                Коментувати
+              </button>
             </form>
           ) : (
-            <Link href="/auth/login" className="mb-4 block rounded-[8px] border border-[#d4e7fa] p-3 text-sm text-[#4d5a66]">
+            <Link href="/auth/login" className="block text-center text-sm text-blue-600 font-semibold hover:underline bg-gray-50 border border-gray-100 rounded-[12px] py-4">
               Щоб залишити коментар, увійдіть у свій акаунт.
             </Link>
           )}
-          <div className="space-y-3">
+
+          {/* Comments List */}
+          <div className="flex flex-col gap-3 mt-1">
             {comments.length === 0 ? (
-              <p className="rounded-[8px] border border-[#d4e7fa] p-3 text-sm text-[#4d5a66]">Ще немає коментарів. Станьте першим, хто прокоментує!</p>
+              <p className="text-gray-400 text-center py-6 text-sm">Ще немає коментарів. Будьте першим!</p>
             ) : (
               comments.map((comment) => (
-                <article key={comment.id} className="rounded-[8px] bg-[#bbdbf8] px-3 py-2">
-                  <div className="flex items-start gap-2">
-                    <img src="/figma-assets/avatar-header.png" alt={comment.userName} className="mt-1 h-8 w-8 rounded-full object-cover" />
-                    <div className="w-full">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-[#0f3a61]">{comment.userName}</p>
-                        <span className="text-xs text-[#828e99]">{new Date(comment.createdAt).toLocaleDateString("uk-UA")}</span>
-                        <div className="flex items-center gap-[2px]">
-                          {[1, 2, 3, 4, 5].map((item) => (
-                            <img key={item} src="/figma-assets/star-small.svg" alt="" className={`h-4 w-4 ${item > comment.rating ? "opacity-30" : ""}`} />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="mt-1 text-sm leading-[1.15] text-[#1b2630]">{comment.text}</p>
+                <div key={comment.id} className="bg-gray-50 rounded-[16px] p-4 flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[14px] text-gray-900">{comment.userName}</span>
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((item) => (
+                        <svg 
+                          key={item} width="14" height="14" viewBox="0 0 24 24" 
+                          fill={item <= comment.rating ? "#FBBF24" : "none"} 
+                          stroke={item <= comment.rating ? "#FBBF24" : "#CBD5E1"} 
+                          strokeWidth="2"
+                        >
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                      ))}
                     </div>
                   </div>
-                </article>
+                  <p className="text-[13px] text-gray-700 leading-relaxed">{comment.text}</p>
+                </div>
               ))
             )}
           </div>
         </section>
 
-        <section className="rounded-[10px] bg-white px-2 pb-4 pt-6">
-          <h2 className="mb-3 text-[22px] font-bold text-[#0f3a61]">Подібні канали</h2>
-          <div className="space-y-3">
-            {similar.map((item) => (
-              <article key={item.slug} className="rounded-[10px] border-2 border-[#bbdbf8] bg-[#ebeff2] p-3">
-                <div className="flex items-center gap-3">
-                  <img src={item.avatar} alt={item.name} className="h-12 w-12 rounded-full object-cover" />
-                  <div className="flex-1">
-                    <p className="text-base font-bold text-[#0f3a61]">{item.name}</p>
-                    <p className="text-xs text-[#4d5a66]">{item.tags}</p>
-                  </div>
-                  <img src="/figma-assets/youtube.svg" alt="YouTube" className="h-[24px] w-[32px]" />
-                </div>
-                <div className="mt-2 grid grid-cols-3 text-center">
-                  <div>
-                    <p className="text-[11px] text-[#9da8b2]">Підп.</p>
-                    <p className="text-[25px]/[1] font-semibold text-[#207cd3]">{item.subs}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] text-[#9da8b2]">Відео</p>
-                    <p className="text-[25px]/[1] font-semibold text-[#207cd3]">{item.videos}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] text-[#9da8b2]">Оцінка</p>
-                    <p className="flex items-center justify-center gap-1 text-[25px]/[1] font-semibold text-[#207cd3]">
-                      <img src="/figma-assets/star-small.svg" alt="" className="h-5 w-5" />
-                      {item.rating}
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-2 line-clamp-2 text-sm text-[#1b2630]">{item.about}</p>
-                <button type="button" className="mt-2 w-full text-center text-base font-semibold text-[#4fa1ed]">
-                  Переглянути інформацію
-                </button>
-              </article>
+        {/* Similar Channels */}
+        <section className="flex flex-col gap-4 mt-4 pl-1">
+          <h2 className="text-[18px] font-bold text-gray-900">Подібні канали</h2>
+          <div className="flex flex-col gap-4">
+            {similar.map((item, i) => (
+              <ChannelCard key={i} channel={item} />
             ))}
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#6cb1f0]" />
-            <span className="h-2 w-2 rounded-full bg-[#d4e7fa]" />
-            <span className="h-2 w-2 rounded-full bg-[#d4e7fa]" />
           </div>
         </section>
       </main>
+
       <Footer />
-    </MobileShell>
+    </div>
   );
 }
