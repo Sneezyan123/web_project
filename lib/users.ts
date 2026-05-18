@@ -14,14 +14,6 @@ type UserDoc = {
   oauthProviderId?: string;
 };
 
-export async function updateUserProfile(input: { userId: string; nickname: string; avatarUrl: string }) {
-  const db = await getDb();
-  await db.collection<UserDoc>("users").updateOne(
-    { _id: new ObjectId(input.userId) },
-    { $set: { nickname: input.nickname.trim(), avatarUrl: input.avatarUrl.trim() } },
-  );
-}
-
 export async function updateUserIdentity(input: { userId: string; nickname: string; email: string; avatarUrl?: string }) {
   const db = await getDb();
   const users = db.collection<UserDoc>("users");

@@ -46,7 +46,7 @@ export function AboutSuggestionsForm() {
   }
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+    <form className="flex w-full max-w-[344px] flex-col gap-3" onSubmit={handleSubmit}>
       <div className="flex flex-col gap-2">
         <label htmlFor="site-suggestion" className="pl-1 text-[14px] font-medium text-[#0f3a61]">
           Напишіть пропозиції

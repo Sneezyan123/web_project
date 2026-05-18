@@ -7,7 +7,7 @@ import {
   thematicTopicNames,
   THEMATIC_COLLECTION_TOPICS,
 } from "@/lib/thematic-topics";
-import { buildKeywordRegex, buildTopicMongoFilter, buildTopicsMongoFilter } from "@/lib/topic-matching";
+import { buildKeywordRegex, buildTopicsMongoFilter } from "@/lib/topic-matching";
 import { sanitizeRichHtml } from "@/lib/channel-about-html";
 import { decodeParam } from "@/lib/url-params";
 import { getYouTubeChannelMeta } from "@/lib/youtube";
@@ -416,12 +416,6 @@ export async function moderateChannelSubmission(input: {
   return { ok: true as const };
 }
 
-export async function getTopics() {
-  const db = await getDb();
-  const values = await db.collection<ChannelDoc>("channels").distinct("topic");
-  return values.sort((a, b) => a.localeCompare(b, "uk"));
-}
-
 export async function getThematicCollections(
   search?: string,
   sort: "alphabet" | "count" | "rating" = "alphabet",
@@ -501,12 +495,6 @@ export async function getChannelsByThematicCollectionSlug(slug: string) {
     title: thematicTopicLabel(matched),
     channels: docs.map(mapChannel),
   };
-}
-
-export async function getLanguages() {
-  const db = await getDb();
-  const values = await db.collection<ChannelDoc>("channels").distinct("language");
-  return values.sort((a, b) => a.localeCompare(b, "uk"));
 }
 
 export type ChannelComment = {

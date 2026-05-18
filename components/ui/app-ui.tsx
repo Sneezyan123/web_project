@@ -171,10 +171,6 @@ export function SearchField({
   );
 }
 
-function SortArrowIcon() {
-  return <img src="/figma-assets/sort-arrows.svg" alt="" className="h-4 w-4 shrink-0" aria-hidden />;
-}
-
 function SortButtonsRow({
   children,
   className = "w-full max-w-[360px]",
@@ -335,6 +331,7 @@ export function SortTabs({
     if (search) params.set("search", search);
     if (sort !== "recommended") params.set("sort", sort);
     if (topic) params.set("topic", topic);
+    topics?.forEach((value) => params.append("topics", value));
     if (language) params.set("language", language);
     if (duration) params.set("duration", duration);
     if (extraParams) {

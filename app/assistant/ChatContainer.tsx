@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { askGroq } from "./actions";
+import { askAssistant } from "./actions";
 
 type Message = {
   role: "user" | "assistant";
@@ -34,7 +34,7 @@ export default function ChatContainer() {
     setLoading(true);
 
     try {
-      const res = await askGroq(updatedMessages);
+      const res = await askAssistant(updatedMessages);
       if (res.error) {
         setMessages((prev) => [...prev, { role: "assistant", content: "Вибач, сталася технічна помилка." }]);
       } else if (res.reply) {
@@ -48,7 +48,7 @@ export default function ChatContainer() {
   };
 
   const samplePrompts = [
-    { label: "Летсплеєри по S.T.A.L.K.E.R.", emoji: "🇺🇸" },
+    { label: "Летсплеєри по S.T.A.L.K.E.R.", emoji: "☢️" },
     { label: "Персоналізовані рекомендації", emoji: null },
     { label: "Очистити підписки від російського*", emoji: null },
     { label: "Аналізувати мій YouTube для рекомендацій*", emoji: null },
@@ -64,7 +64,9 @@ export default function ChatContainer() {
             {msg.role === "assistant" && index === 0 ? (
               <div className="mb-1 flex w-full items-center justify-between px-1">
                 <span className="text-[14px] font-semibold text-[#0f3a61]">Помічник</span>
-                <span className="text-[11px] text-[#9da8b2]">11:34</span>
+                <span className="text-[11px] text-[#9da8b2]">
+                  {new Date().toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" })}
+                </span>
               </div>
             ) : msg.role === "assistant" ? (
               <span className="mb-1 pl-1 text-[14px] font-semibold text-[#0f3a61]">Помічник</span>

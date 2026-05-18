@@ -8,7 +8,6 @@ import { formatChannelAboutHtml } from "@/lib/channel-about-html";
 interface ChannelProps {
   channel: ChannelItem;
   isBookmarked?: boolean;
-  grayStats?: boolean;
   compact?: boolean;
   showDetailsLink?: boolean;
   footerContent?: ReactNode;

@@ -2,7 +2,7 @@ import { MobileShell } from "@/components/layout/MobileShell";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { AboutFaq } from "./AboutFaq";
-import { AboutFeedback } from "./AboutFeedback";
+import { AboutSuggestionsForm } from "./AboutSuggestionsForm";
 import { AssistantBubble, Breadcrumbs, SectionTitle } from "@/components/ui/app-ui";
 
 const aboutBodyParagraphs = [
@@ -52,7 +52,7 @@ export default function AboutPage() {
               <SectionTitle className="max-w-[318px] leading-snug">
                 Маєш пропозиції для покращення сайту?
               </SectionTitle>
-              <AboutFeedback />
+              <AboutSuggestionsForm />
             </section>
           </div>
         </div>

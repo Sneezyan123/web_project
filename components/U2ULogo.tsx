@@ -6,7 +6,7 @@ const SIZES = {
 } as const;
 
 export function U2ULogo({ variant = "header" }: { variant?: keyof typeof SIZES }) {
-  const { height, className } = SIZES[variant];
+  const { className } = SIZES[variant];
 
   return (
     <Image

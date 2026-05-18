@@ -18,7 +18,7 @@ type SearchParams = Promise<{
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const currentUser = await getCurrentUser();
-  
+
   const activeSort = params.sort ?? "recommended";
   const activeTopics = parseTopicsFromSearchParams(params);
 
@@ -51,7 +51,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         ) : null}
 
         <section className="space-y-4 rounded-[12px] px-2 pt-6">
-          <div className="flex items-end justify-between" >
+          <div className="flex items-end justify-between">
             <SectionTitle className="text-[22px]">Тематичні добірки</SectionTitle>
             <ViewAllLink href="/collections" />
           </div>

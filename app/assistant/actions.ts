@@ -1,6 +1,6 @@
 "use server";
 
-export async function askGroq(messages: { role: string; content: string }[]) {
+export async function askAssistant(messages: { role: string; content: string }[]) {
   const systemPrompt = `Ти — розумний AI помічник для сайту "Ukrainians to Ukrainians" (U2U).
 Твоє завдання — рекомендувати україномовні канали або тематичні добірки користувачам.
 Відповідай виключно українською мовою. Будь дружнім, лаконічним та підтримуй українських контент-мейкерів!`;
@@ -28,7 +28,8 @@ export async function askGroq(messages: { role: string; content: string }[]) {
     const text = await response.text();
     const cleanedText = text.replace(/<\/?[^>]+(>|$)/g, "");
     return { reply: cleanedText };
-  } catch (err: any) {
-    return { error: "Failed to connect to AI API", details: err.message };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return { error: "Failed to connect to AI API", details: message };
   }
 }

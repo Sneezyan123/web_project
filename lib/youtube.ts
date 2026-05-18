@@ -106,6 +106,7 @@ export async function getYouTubeChannelMeta(channelUrl: string): Promise<YouTube
     items?: Array<{
       statistics?: { subscriberCount?: string; videoCount?: string };
       snippet?: {
+        title?: string;
         thumbnails?: {
           high?: { url?: string };
           medium?: { url?: string };
